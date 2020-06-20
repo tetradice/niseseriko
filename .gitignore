@@ -1,0 +1,9 @@
+*.suo
+*.csproj.user
+*.pdb
+*.vshost.exe*
+.vs
+*.pubxml.user
+bin
+obj
+/SerikoCamera/Properties/launchSettings.json

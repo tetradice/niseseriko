@@ -31,8 +31,16 @@ namespace NiseSeriko.Exceptions
             get
             {
                 var prefix = (Unsupported ? "UNSUPPORTED: " : "ERROR: ");
-                if (Scope == 0) prefix += "[本体側]";
-                if (Scope == 1) prefix += "[パートナー側]";
+                if (Scope == 0)
+                {
+                    prefix += "[本体側]";
+                }
+
+                if (Scope == 1)
+                {
+                    prefix += "[パートナー側]";
+                }
+
                 return prefix + Message;
             }
         }

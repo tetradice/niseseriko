@@ -202,23 +202,40 @@ namespace NiseSeriko
             LastModified = File.GetLastWriteTime(DirPath);
 
             // descript.txt 更新日付
-            if (Descript.LastWriteTime > LastModified) LastModified = Descript.LastWriteTime; // 新しければセット
+            if (Descript.LastWriteTime > LastModified)
+            {
+                LastModified = Descript.LastWriteTime; // 新しければセット
+            }
 
             // surfaces*.txt 更新日付
             foreach (var surfaceText in SurfacesTextList)
             {
-                if (surfaceText.LastWriteTime > LastModified) LastModified = surfaceText.LastWriteTime; // 新しければセット
+                if (surfaceText.LastWriteTime > LastModified)
+                {
+                    LastModified = surfaceText.LastWriteTime; // 新しければセット
+                }
             }
 
             // profile/shell.dat 更新日付
             var shellProfPath = ProfileDataPath;
-            if (File.Exists(shellProfPath) && File.GetLastWriteTime(shellProfPath) > LastModified) LastModified = File.GetLastWriteTime(shellProfPath); // 新しければセット
+            if (File.Exists(shellProfPath) && File.GetLastWriteTime(shellProfPath) > LastModified)
+            {
+                LastModified = File.GetLastWriteTime(shellProfPath); // 新しければセット
+            }
 
             // 読み込む画像ファイルの更新日付
             var imagePaths = new HashSet<string>();
             var allLayers = new List<SurfaceModel.Layer>();
-            if (SakuraSurfaceModel != null) allLayers.AddRange(SakuraSurfaceModel.Layers);
-            if (KeroSurfaceModel != null) allLayers.AddRange(KeroSurfaceModel.Layers);
+            if (SakuraSurfaceModel != null)
+            {
+                allLayers.AddRange(SakuraSurfaceModel.Layers);
+            }
+
+            if (KeroSurfaceModel != null)
+            {
+                allLayers.AddRange(KeroSurfaceModel.Layers);
+            }
+
             foreach (var layer in allLayers)
             {
                 imagePaths.Add(layer.Path);
@@ -259,13 +276,19 @@ namespace NiseSeriko
             }
 
             // 非表示の場合はnullを返す
-            if (surfaceId == -1) return null;
+            if (surfaceId == -1)
+            {
+                return null;
+            }
 
             // currentLoadedSurfaceIds が未指定の場合は生成
             alreadyPassedSurfaceIds = (alreadyPassedSurfaceIds ?? new HashSet<int>());
 
             // interimLogsが未指定の場合は生成
-            if (interimLogs == null && InterimOutputDirPathForDebug != null) interimLogs = new List<string>();
+            if (interimLogs == null && InterimOutputDirPathForDebug != null)
+            {
+                interimLogs = new List<string>();
+            }
 
             // animation*.pattern* 内で指定されたサーフェスIDと対応するサーフェス情報
             var childSurfaceModels = new Dictionary<int, SurfaceModel>();
@@ -334,11 +357,17 @@ namespace NiseSeriko
                                 Y = elem.OffsetY
                             };
                             surfaceModel.Layers.Add(layer);
-                            if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("element{0} - use {1}", elem.Id, Path.GetFileName(filePath)));
+                            if (interimLogs != null)
+                            {
+                                interimLogs.Add(interimLogPrefix + string.Format("element{0} - use {1}", elem.Id, Path.GetFileName(filePath)));
+                            }
                         }
                         else
                         {
-                            if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("ERROR: element{0} image not found ({1})", elem.Id, Path.GetFileName(filePath)));
+                            if (interimLogs != null)
+                            {
+                                interimLogs.Add(interimLogPrefix + string.Format("ERROR: element{0} image not found ({1})", elem.Id, Path.GetFileName(filePath)));
+                            }
                         }
                     }
                 }
@@ -350,13 +379,20 @@ namespace NiseSeriko
                     // 画像がある場合はレイヤとして追加
                     if (surfacePath != null)
                     {
-                        if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("use base image ({0})", Path.GetFileName(surfacePath)));
+                        if (interimLogs != null)
+                        {
+                            interimLogs.Add(interimLogPrefix + string.Format("use base image ({0})", Path.GetFileName(surfacePath)));
+                        }
+
                         var method = (parentPatternComposingMethod.HasValue ? parentPatternComposingMethod.Value : Seriko.ComposingMethodType.Base);
                         surfaceModel.Layers.Add(new SurfaceModel.Layer(surfacePath, method));
                     }
                     else
                     {
-                        if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("base image not found"));
+                        if (interimLogs != null)
+                        {
+                            interimLogs.Add(interimLogPrefix + string.Format("base image not found"));
+                        }
                     }
                 }
 
@@ -366,10 +402,20 @@ namespace NiseSeriko
                     var animId = pair.Key;
                     var anim = pair.Value;
 
-                    if (anim.PatternDisplayForStaticImage == Seriko.Animation.PatternDisplayType.No) continue; // 表示対象外の場合はスキップ
-                    if (anim.UsingBindGroup && !enabledBindGroupIds.Contains(animId)) continue; // 着せ替え定義の場合、初期状態で有効でないbindGroupはスキップ
+                    if (anim.PatternDisplayForStaticImage == Seriko.Animation.PatternDisplayType.No)
+                    {
+                        continue; // 表示対象外の場合はスキップ
+                    }
 
-                    if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("use animation{0} (display: {1})", animId, anim.PatternDisplayForStaticImage));
+                    if (anim.UsingBindGroup && !enabledBindGroupIds.Contains(animId))
+                    {
+                        continue; // 着せ替え定義の場合、初期状態で有効でないbindGroupはスキップ
+                    }
+
+                    if (interimLogs != null)
+                    {
+                        interimLogs.Add(interimLogPrefix + string.Format("use animation{0} (display: {1})", animId, anim.PatternDisplayForStaticImage));
+                    }
 
                     // interval指定によっては、全patternを重ね合わせるのではなく、最終patternのみ処理する (例: bind+runonce)
                     var usingPatterns = anim.Patterns.OrderBy(e => e.Id).ToList();
@@ -386,10 +432,16 @@ namespace NiseSeriko
                     var relative = anim.OffsetInterpriting == Seriko.Animation.OffsetInterpritingType.RelativeFromPreviousFrame;
                     foreach (var pattern in usingPatterns) // IDが小さい順に処理
                     {
-                        if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("  pattern{0} (surfaceId={1})", pattern.Id, pattern.SurfaceId));
+                        if (interimLogs != null)
+                        {
+                            interimLogs.Add(interimLogPrefix + string.Format("  pattern{0} (surfaceId={1})", pattern.Id, pattern.SurfaceId));
+                        }
 
                         // サーフェスIDが負数なら非表示指定のため無視 (-1, -2など)
-                        if (pattern.SurfaceId < 0) continue;
+                        if (pattern.SurfaceId < 0)
+                        {
+                            continue;
+                        }
 
                         // 座標決定
                         if (relative)
@@ -422,24 +474,37 @@ namespace NiseSeriko
                                 };
                                 surfaceModel.Layers.Add(layer);
 
-                                if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("    use {0}", Path.GetFileName(filePath)));
+                                if (interimLogs != null)
+                                {
+                                    interimLogs.Add(interimLogPrefix + string.Format("    use {0}", Path.GetFileName(filePath)));
+                                }
                             }
                             else
                             {
-                                if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("    ERROR: image not found"));
+                                if (interimLogs != null)
+                                {
+                                    interimLogs.Add(interimLogPrefix + string.Format("    ERROR: image not found"));
+                                }
                             }
                         }
                         else
                         {
                             // 循環定義の場合は無視
-                            if (alreadyPassedSurfaceIds.Contains(pattern.SurfaceId)) continue;
+                            if (alreadyPassedSurfaceIds.Contains(pattern.SurfaceId))
+                            {
+                                continue;
+                            }
 
                             // まだ定義を読み込んでいないサーフェスIDであれば
                             // 指定されたサーフェスIDと対応するサーフェスモデルを構築
                             if (!childSurfaceModels.ContainsKey(pattern.SurfaceId))
                             {
                                 alreadyPassedSurfaceIds.Add(surfaceId);
-                                if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("    load child surface model - s{0}", pattern.SurfaceId));
+                                if (interimLogs != null)
+                                {
+                                    interimLogs.Add(interimLogPrefix + string.Format("    load child surface model - s{0}", pattern.SurfaceId));
+                                }
+
                                 childSurfaceModels[pattern.SurfaceId] = LoadSurfaceModel(
                                     pattern.SurfaceId
                                     , targetCharacter
@@ -465,7 +530,10 @@ namespace NiseSeriko
                                     };
                                     surfaceModel.Layers.Add(layer);
 
-                                    if (interimLogs != null) interimLogs.Add(interimLogPrefix + string.Format("    use {0}", Path.GetFileName(layer.Path)));
+                                    if (interimLogs != null)
+                                    {
+                                        interimLogs.Add(interimLogPrefix + string.Format("    use {0}", Path.GetFileName(layer.Path)));
+                                    }
                                 }
                             }
                         }
@@ -515,7 +583,10 @@ namespace NiseSeriko
             {
                 Directory.CreateDirectory(InterimOutputDirPathForDebug);
                 interimLogPath = Path.Combine(InterimOutputDirPathForDebug, string.Format(@"s{0:0000}.log", model.Id));
-                if (File.Exists(interimLogPath)) File.Delete(interimLogPath);
+                if (File.Exists(interimLogPath))
+                {
+                    File.Delete(interimLogPath);
+                }
 
                 surface.Write(Path.Combine(InterimOutputDirPathForDebug, string.Format(@"s{0:0000}_p{1:0000}.png", model.Id, 0)));
                 var msg = string.Format("p{0:000} : {1} method={2} x={3} y={4} (rendering time: {5} ms)", 0, Path.GetFileName(model.Layers[0].Path), model.Layers[0].ComposingMethod.ToString(), model.Layers[0].X, model.Layers[0].Y, sw1st.ElapsedMilliseconds);
@@ -658,7 +729,10 @@ namespace NiseSeriko
 
             // 縮小率を決定 (幅が収まるように縮小する)
             var scaleRate = faceWidth / (double)surface.Width;
-            if (scaleRate > 1.0) scaleRate = 1.0; // 拡大はしない
+            if (scaleRate > 1.0)
+            {
+                scaleRate = 1.0; // 拡大はしない
+            }
 
             // リサイズ処理
             surface.Resize((int)Math.Round(surface.Width * scaleRate), (int)Math.Round(surface.Height * scaleRate));
@@ -882,8 +956,16 @@ namespace NiseSeriko
         {
             ISet<int> enabledIds = null;
 
-            if (targetCharacter == "sakura") targetCharacter = "char0";
-            if (targetCharacter == "kero") targetCharacter = "char1";
+            if (targetCharacter == "sakura")
+            {
+                targetCharacter = "char0";
+            }
+
+            if (targetCharacter == "kero")
+            {
+                targetCharacter = "char1";
+            }
+
             var shellProfPath = ProfileDataPath;
 
             var mark = string.Format("{0}.bind.savearray,", targetCharacter);
@@ -940,7 +1022,10 @@ namespace NiseSeriko
                     if (matched.Success && pair.Value == "1")
                     {
                         var groupId = int.Parse(matched.Groups[1].Value);
-                        if (!bindGroups.ContainsKey(groupId)) bindGroups[groupId] = new BindGroup();
+                        if (!bindGroups.ContainsKey(groupId))
+                        {
+                            bindGroups[groupId] = new BindGroup();
+                        }
 
                         bindGroups[groupId].Default = true;
 
@@ -954,7 +1039,10 @@ namespace NiseSeriko
                     if (matched.Success)
                     {
                         var groupId = int.Parse(matched.Groups[1].Value);
-                        if (!bindGroups.ContainsKey(groupId)) bindGroups[groupId] = new BindGroup();
+                        if (!bindGroups.ContainsKey(groupId))
+                        {
+                            bindGroups[groupId] = new BindGroup();
+                        }
 
                         bindGroups[groupId].AddId = new List<int>();
                         foreach (var idValue in pair.Value.Split(','))

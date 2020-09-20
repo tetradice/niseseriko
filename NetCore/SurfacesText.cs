@@ -154,7 +154,10 @@ namespace NiseSeriko
                 {
 
                     // 直前行がない場合は不正としてスキップ
-                    if (preTrimmedLine == null) continue;
+                    if (preTrimmedLine == null)
+                    {
+                        continue;
+                    }
 
                     // スコープを設定
                     currentScope = preTrimmedLine; // 直前行の記載内容をスコープ名とする
@@ -171,7 +174,10 @@ namespace NiseSeriko
                 else if (trimmedLine == "}")  // 閉じブレス
                 {
                     // スコープ内にいない場合は不正としてスキップ
-                    if (currentScope == null) continue;
+                    if (currentScope == null)
+                    {
+                        continue;
+                    }
 
                     // スコープをクリア
                     currentScope = null;
@@ -184,7 +190,11 @@ namespace NiseSeriko
                     // スコープ内にいれば、対象スコープの値として追加
                     if (currentScope != null)
                     {
-                        if (!Scopes.ContainsKey(currentScope)) Scopes[currentScope] = new Scope();
+                        if (!Scopes.ContainsKey(currentScope))
+                        {
+                            Scopes[currentScope] = new Scope();
+                        }
+
                         Scopes[currentScope].Entries.Add(Tuple.Create(pair[0].Trim(), pair[1].Trim())); // 仕様上は不正と思われるが、たまに大文字混じりでキーを指定しているケースがあるためdowncase
                     }
                 }
@@ -259,7 +269,10 @@ namespace NiseSeriko
                 var scopeValues = pair.Value.Entries;
 
                 // サーフェスIDとマッチするスコープでなければスキップ
-                if (!IsMatchingScope(scopeName, surfaceId)) continue;
+                if (!IsMatchingScope(scopeName, surfaceId))
+                {
+                    continue;
+                }
 
                 // element指定があれば追加
                 foreach (var valuePair in scopeValues)
@@ -278,21 +291,60 @@ namespace NiseSeriko
                                 var methodValue = matched2.Groups["method"].Value;
 
                                 elem.Method = Seriko.ComposingMethodType.Overlay;
-                                if (methodValue == "asis") elem.Method = Seriko.ComposingMethodType.Asis;
-                                if (methodValue == "base") elem.Method = Seriko.ComposingMethodType.Base;
-                                if (methodValue == "interpolate") elem.Method = Seriko.ComposingMethodType.Interpolate;
-                                if (methodValue == "overlay") elem.Method = Seriko.ComposingMethodType.Overlay;
-                                if (methodValue == "overlayfast") elem.Method = Seriko.ComposingMethodType.OverlayFast;
-                                if (methodValue == "reduce") elem.Method = Seriko.ComposingMethodType.Reduce;
-                                if (methodValue == "replace") elem.Method = Seriko.ComposingMethodType.Replace;
+                                if (methodValue == "asis")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Asis;
+                                }
+
+                                if (methodValue == "base")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Base;
+                                }
+
+                                if (methodValue == "interpolate")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Interpolate;
+                                }
+
+                                if (methodValue == "overlay")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Overlay;
+                                }
+
+                                if (methodValue == "overlayfast")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.OverlayFast;
+                                }
+
+                                if (methodValue == "reduce")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Reduce;
+                                }
+
+                                if (methodValue == "replace")
+                                {
+                                    elem.Method = Seriko.ComposingMethodType.Replace;
+                                }
 
                                 elem.FileName = matched2.Groups["filename"].Value.ToLower().Trim();
-                                if (!elem.FileName.EndsWith(".png")) elem.FileName = elem.FileName + ".png"; // 拡張子が .png でなければ自動補完 (れいちぇるなど対応)
+                                if (!elem.FileName.EndsWith(".png"))
+                                {
+                                    elem.FileName = elem.FileName + ".png"; // 拡張子が .png でなければ自動補完 (れいちぇるなど対応)
+                                }
+
                                 var offsetX = 0;
-                                if (matched2.Groups["offsetx"].Success) int.TryParse(matched2.Groups["offsetx"].Value, out offsetX);
+                                if (matched2.Groups["offsetx"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsetx"].Value, out offsetX);
+                                }
+
                                 elem.OffsetX = offsetX;
                                 var offsetY = 0;
-                                if (matched2.Groups["offsety"].Success) int.TryParse(matched2.Groups["offsety"].Value, out offsetY);
+                                if (matched2.Groups["offsety"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsety"].Value, out offsetY);
+                                }
+
                                 elem.OffsetY = offsetY;
 
                                 defInfo.Elements.Add(elem);
@@ -373,9 +425,16 @@ namespace NiseSeriko
                                 var methodValue = matched2.Groups["method"].Value;
                                 var patternSurfaceId = int.Parse(matched2.Groups["surfaceID"].Value);
                                 var offsetX = 0;
-                                if (matched2.Groups["offsetX"].Success) int.TryParse(matched2.Groups["offsetX"].Value, out offsetX);
+                                if (matched2.Groups["offsetX"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsetX"].Value, out offsetX);
+                                }
+
                                 var offsetY = 0;
-                                if (matched2.Groups["offsetY"].Success) int.TryParse(matched2.Groups["offsetY"].Value, out offsetY);
+                                if (matched2.Groups["offsetY"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsetY"].Value, out offsetY);
+                                }
 
                                 addAnimationPattern(
                                     defInfo.Animations
@@ -407,9 +466,16 @@ namespace NiseSeriko
                                 var methodValue = matched2.Groups["method"].Value;
                                 var patternSurfaceId = int.Parse(matched2.Groups["surfaceID"].Value);
                                 var offsetX = 0;
-                                if (matched2.Groups["offsetX"].Success) int.TryParse(matched2.Groups["offsetX"].Value, out offsetX);
+                                if (matched2.Groups["offsetX"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsetX"].Value, out offsetX);
+                                }
+
                                 var offsetY = 0;
-                                if (matched2.Groups["offsetY"].Success) int.TryParse(matched2.Groups["offsetY"].Value, out offsetY);
+                                if (matched2.Groups["offsetY"].Success)
+                                {
+                                    int.TryParse(matched2.Groups["offsetY"].Value, out offsetY);
+                                }
 
                                 addAnimationPattern(
                                     defInfo.Animations
@@ -456,16 +522,55 @@ namespace NiseSeriko
             // patternを生成して追加
             var pat = new Seriko.Animation.Pattern() { Id = patId };
             pat.Method = Seriko.ComposingMethodType.Overlay;
-            if (methodValue == "add") pat.Method = Seriko.ComposingMethodType.Add;
-            if (methodValue == "asis") pat.Method = Seriko.ComposingMethodType.Asis;
-            if (methodValue == "base") pat.Method = Seriko.ComposingMethodType.Base;
-            if (methodValue == "bind") pat.Method = Seriko.ComposingMethodType.Bind;
-            if (methodValue == "insert") pat.Method = Seriko.ComposingMethodType.Insert;
-            if (methodValue == "interpolate") pat.Method = Seriko.ComposingMethodType.Interpolate;
-            if (methodValue == "overlay") pat.Method = Seriko.ComposingMethodType.Overlay;
-            if (methodValue == "overlayfast") pat.Method = Seriko.ComposingMethodType.OverlayFast;
-            if (methodValue == "reduce") pat.Method = Seriko.ComposingMethodType.Reduce;
-            if (methodValue == "replace") pat.Method = Seriko.ComposingMethodType.Replace;
+            if (methodValue == "add")
+            {
+                pat.Method = Seriko.ComposingMethodType.Add;
+            }
+
+            if (methodValue == "asis")
+            {
+                pat.Method = Seriko.ComposingMethodType.Asis;
+            }
+
+            if (methodValue == "base")
+            {
+                pat.Method = Seriko.ComposingMethodType.Base;
+            }
+
+            if (methodValue == "bind")
+            {
+                pat.Method = Seriko.ComposingMethodType.Bind;
+            }
+
+            if (methodValue == "insert")
+            {
+                pat.Method = Seriko.ComposingMethodType.Insert;
+            }
+
+            if (methodValue == "interpolate")
+            {
+                pat.Method = Seriko.ComposingMethodType.Interpolate;
+            }
+
+            if (methodValue == "overlay")
+            {
+                pat.Method = Seriko.ComposingMethodType.Overlay;
+            }
+
+            if (methodValue == "overlayfast")
+            {
+                pat.Method = Seriko.ComposingMethodType.OverlayFast;
+            }
+
+            if (methodValue == "reduce")
+            {
+                pat.Method = Seriko.ComposingMethodType.Reduce;
+            }
+
+            if (methodValue == "replace")
+            {
+                pat.Method = Seriko.ComposingMethodType.Replace;
+            }
 
             pat.SurfaceId = patternSurfaceId;
             pat.OffsetX = offsetX;
@@ -481,7 +586,11 @@ namespace NiseSeriko
         public virtual bool IsMatchingScope(string scopeName, int surfaceId)
         {
             // スコープ名が "surface" から始まっていなければマッチしない
-            if (!scopeName.StartsWith("surface")) return false;
+            if (!scopeName.StartsWith("surface"))
+            {
+                return false;
+            }
+
             if (scopeName.Contains(".append"))
             {
             }
@@ -499,7 +608,10 @@ namespace NiseSeriko
                     var negative = !string.IsNullOrEmpty(matched.Groups[1].Value);
                     var left = int.Parse(matched.Groups[2].Value);
                     int? right = null;
-                    if (!string.IsNullOrEmpty(matched.Groups[3].Value)) right = int.Parse(matched.Groups[3].Value);
+                    if (!string.IsNullOrEmpty(matched.Groups[3].Value))
+                    {
+                        right = int.Parse(matched.Groups[3].Value);
+                    }
 
                     // 範囲指定かどうかで処理を分ける
                     if (right != null)

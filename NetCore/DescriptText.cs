@@ -33,7 +33,7 @@ namespace NiseSeriko
         /// </summary>
         public virtual void Load()
         {
-            var charsetPattern = new Regex(@"charset\s,\s*(.+?)\s*\z");
+            var charsetPattern = new Regex(@"charset\s*,\s*(.+?)\s*\z", RegexOptions.IgnoreCase);
             var entryPattern = new Regex(@"(.+?)\s*,\s*(.+?)\s*\z");
 
             // 既存の値はクリア

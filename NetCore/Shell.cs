@@ -662,6 +662,10 @@ namespace NiseSeriko
                         // すでに画像サイズ調整を行っているため、0原点とする
                         surface.Composite(layerBmp, 0, 0, CompositeOperator.DstOver);
                     }
+                    else if (layer.ComposingMethod == Seriko.ComposingMethodType.Move)
+                    {
+                        // moveは無視
+                    }
                     else
                     {
                         // 上記以外はoverlay扱いで、普通に重ねていく

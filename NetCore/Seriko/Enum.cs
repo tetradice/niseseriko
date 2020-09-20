@@ -29,5 +29,6 @@ namespace NiseSeriko.Seriko
         , Add
         , Reduce
         , Insert
+        , Move
     }
 }

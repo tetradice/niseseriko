@@ -552,6 +552,11 @@ namespace NiseSeriko
                 pat.Method = Seriko.ComposingMethodType.Interpolate;
             }
 
+            if (methodValue == "move")
+            {
+                pat.Method = Seriko.ComposingMethodType.Move;
+            }
+
             if (methodValue == "overlay")
             {
                 pat.Method = Seriko.ComposingMethodType.Overlay;

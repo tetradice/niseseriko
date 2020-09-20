@@ -48,13 +48,20 @@ namespace NiseSeriko
             var preLines = File.ReadLines(Path, encoding: sjis);
             foreach (var line in preLines)
             {
-                // charset行が見つかった場合は、文字コードを設定してループ終了
+                // charset行が見つかり、かつ有効なエンコーディング名である場合は、エンコーディングを設定してループ終了
                 var matched = charsetPattern.Match(line);
                 if (matched.Success)
                 {
                     var charset = matched.Groups[1].Value;
-                    encoding = Encoding.GetEncoding(charset);
-                    break;
+                    try
+                    {
+                        encoding = Encoding.GetEncoding(charset);
+                        break;
+                    }
+                    catch (ArgumentException)
+                    {
+                        // 読み込めない場合は設定しない (sjisのまま)
+                    }
                 }
             }
 

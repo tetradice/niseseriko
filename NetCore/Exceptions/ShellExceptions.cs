@@ -114,6 +114,34 @@ namespace NiseSeriko.Exceptions
     }
 
     /// <summary>
+    /// descript.txt がないシェルを読み込んだ
+    /// </summary>
+    [Serializable()]
+    public class ShellDescriptNotFoundException : UnhandlableShellException
+    {
+        /// <summary>
+        /// Unsupported (サポート対象外) フラグ
+        /// </summary>
+        public override bool Unsupported { get { return true; } }
+
+        public ShellDescriptNotFoundException() : base(null)
+        {
+        }
+
+        public ShellDescriptNotFoundException(string message) : base(message)
+        {
+        }
+
+        public ShellDescriptNotFoundException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected ShellDescriptNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>
     /// 不正なフォーマットの画像ファイルを読み込んだ
     /// </summary>
     [Serializable()]

@@ -119,7 +119,7 @@ namespace NiseSeriko
         /// </summary>
         public static bool IsShellDir(string dirPath)
         {
-            // descript.txt が存在するならゴーストフォルダとみなす
+            // descript.txt が存在するならシェルフォルダとみなす
             var shellDesc = Path.Combine(dirPath, "descript.txt");
             return (File.Exists(shellDesc));
         }

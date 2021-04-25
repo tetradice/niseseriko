@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ImageMagick;
 using NiseSeriko.Exceptions;
 
@@ -356,7 +354,7 @@ namespace NiseSeriko
                                 X = elem.OffsetX,
                                 Y = elem.OffsetY
                             };
-                            surfaceModel.Layers.Add(layer);
+                            surfaceModel.BaseSurfaceLayers.Add(layer);
                             if (interimLogs != null)
                             {
                                 interimLogs.Add(interimLogPrefix + string.Format("element{0} - use {1}", elem.Id, Path.GetFileName(filePath)));
@@ -385,7 +383,7 @@ namespace NiseSeriko
                         }
 
                         var method = (parentPatternComposingMethod.HasValue ? parentPatternComposingMethod.Value : Seriko.ComposingMethodType.Base);
-                        surfaceModel.Layers.Add(new SurfaceModel.Layer(surfacePath, method));
+                        surfaceModel.BaseSurfaceLayers.Add(new SurfaceModel.Layer(surfacePath, method));
                     }
                     else
                     {
@@ -472,7 +470,14 @@ namespace NiseSeriko
                                     X = cx,
                                     Y = cy
                                 };
-                                surfaceModel.Layers.Add(layer);
+                                if (anim.BackgroundOption)
+                                {
+                                    surfaceModel.BackgroundAnimationLayers.Add(layer);
+                                }
+                                else
+                                {
+                                    surfaceModel.NormalAnimationLayers.Add(layer);
+                                }
 
                                 if (interimLogs != null)
                                 {
@@ -528,7 +533,15 @@ namespace NiseSeriko
                                         X = cx + childLayer.X, // patternの処理によって決まった原点座標 + element側でのoffset
                                         Y = cy + childLayer.Y // 同上
                                     };
-                                    surfaceModel.Layers.Add(layer);
+
+                                    if (anim.BackgroundOption)
+                                    {
+                                        surfaceModel.BackgroundAnimationLayers.Add(layer);
+                                    }
+                                    else
+                                    {
+                                        surfaceModel.NormalAnimationLayers.Add(layer);
+                                    }
 
                                     if (interimLogs != null)
                                     {
@@ -574,9 +587,11 @@ namespace NiseSeriko
         /// <param name="trim">画像周辺の余白を削除するかどうか</param>
         public virtual MagickImage DrawSurface(SurfaceModel model, bool trim = true)
         {
-            // まずは1枚目のレイヤをベースレイヤとして読み込む
+            var layers = model.Layers.ToList();
+
+            // まずは1枚目のレイヤを読み込む
             var sw1st = Stopwatch.StartNew();
-            var surface = LoadAndProcessSurfaceFile(model.Layers[0].Path);
+            var surface = LoadAndProcessSurfaceFile(layers[0].Path);
 
             string interimLogPath = null;
             if (InterimOutputDirPathForDebug != null)
@@ -589,17 +604,17 @@ namespace NiseSeriko
                 }
 
                 surface.Write(Path.Combine(InterimOutputDirPathForDebug, string.Format(@"s{0:0000}_p{1:0000}.png", model.Id, 0)));
-                var msg = string.Format("p{0:000} : {1} method={2} x={3} y={4} (rendering time: {5} ms)", 0, Path.GetFileName(model.Layers[0].Path), model.Layers[0].ComposingMethod.ToString(), model.Layers[0].X, model.Layers[0].Y, sw1st.ElapsedMilliseconds);
+                var msg = string.Format("p{0:000} : {1} method={2} x={3} y={4} (rendering time: {5} ms)", 0, Path.GetFileName(layers[0].Path), layers[0].ComposingMethod.ToString(), layers[0].X, layers[0].Y, sw1st.ElapsedMilliseconds);
                 File.AppendAllLines(interimLogPath, new[] { msg });
             };
 
             // 2枚目以降のレイヤが存在するなら、上に重ねていく
-            if (model.Layers.Count >= 2)
+            if (layers.Count >= 2)
             {
-                for (var i = 1; i < model.Layers.Count; i++)
+                for (var i = 1; i < layers.Count; i++)
                 {
                     var sw = Stopwatch.StartNew();
-                    var layer = model.Layers[i];
+                    var layer = layers[i];
                     var layerBmp = LoadAndProcessSurfaceFile(layer.Path);
 
                     if (InterimOutputDirPathForDebug != null)
@@ -1117,9 +1132,25 @@ namespace NiseSeriko
             public virtual int Id { get; set; }
 
             /// <summary>
-            /// レイヤリスト
+            /// レイヤリスト（background animation分、ベースサーフェス分、通常animation分の合計）
             /// </summary>
-            public virtual IList<Layer> Layers { get; protected set; }
+            public virtual IEnumerable<Layer> Layers { get { return BackgroundAnimationLayers.Concat(BaseSurfaceLayers).Concat(NormalAnimationLayers); } }
+
+            /// <summary>
+            /// レイヤリスト（background animation分）
+            /// </summary>
+            public virtual IList<Layer> BackgroundAnimationLayers { get; protected set; }
+
+            /// <summary>
+            /// レイヤリスト（ベースサーフェス分）
+            /// </summary>
+            public virtual IList<Layer> BaseSurfaceLayers { get; protected set; }
+
+            /// <summary>
+            /// レイヤリスト（通常animation分の合計）
+            /// </summary>
+            public virtual IList<Layer> NormalAnimationLayers { get; protected set; }
+
 
             /// <summary>
             /// コンストラクタ
@@ -1127,7 +1158,9 @@ namespace NiseSeriko
             public SurfaceModel(int id)
             {
                 Id = id;
-                Layers = new List<Layer>();
+                BackgroundAnimationLayers = new List<Layer>();
+                BaseSurfaceLayers = new List<Layer>();
+                NormalAnimationLayers = new List<Layer>();
             }
         }
 

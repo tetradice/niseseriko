@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NiseSeriko.Seriko
 {
@@ -33,6 +29,11 @@ namespace NiseSeriko.Seriko
         }
 
         public virtual List<Pattern> Patterns { get; set; } = new List<Pattern>();
+
+        /// <summary>
+        /// optionでbackground指定がされたかどうか。指定されている場合はアニメーションをベースサーフェスの後ろ（画面奥側）で実行
+        /// </summary>
+        public virtual bool BackgroundOption { get; set; } = false;
 
         /// <summary>
         /// 立ち絵表示時にどのパターン画像を使用するか

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NiseSeriko
 {
@@ -261,6 +259,8 @@ namespace NiseSeriko
             var patKeyRegexV1 = new Regex(@"\A(?<animID>\d+)pattern(?<patID>\d+)\z");
             var patValueRegexV2 = new Regex(@"\A(?<method>[a-z]+)\s*,\s*(?<surfaceID>[\d-]+)\s*,\s*[\d-]+(?:,(?<offsetX>[^,]+)\s*,\s*(?<offsetY>[^,]+))?\z");
             var patValueRegexV1 = new Regex(@"\A(?<surfaceID>[\d-]+)\s*,\s*[\d-]+\s*,\s*(?<method>[a-z]+)(?:,(?<offsetX>[^,]+)\s*,\s*(?<offsetY>[^,]+))\z");
+            var optionKeyRegexV2 = new Regex(@"\Aanimation(?<animID>\d+).option\z");
+            var optionKeyRegexV1 = new Regex(@"\A(?<animID>\d+)option\z");
 
             // スコープ1つごとに処理
             foreach (var pair in Scopes)
@@ -491,6 +491,43 @@ namespace NiseSeriko
                             continue;
                         }
                     }
+
+                    // animation.option処理
+                    {
+                        var matchedV2 = optionKeyRegexV2.Match(valuePair.Item1);
+                        var matchedV1 = optionKeyRegexV1.Match(valuePair.Item1);
+                        if (matchedV2.Success || matchedV1.Success)
+                        {
+                            var usingMatchResult = (matchedV2.Success ? matchedV2 : matchedV1);
+                            var animId = int.Parse(usingMatchResult.Groups["animID"].Value);
+
+                            // 値を半角+で区切り、前後の空白を取り除く
+                            var values = valuePair.Item2.Split('+').Select(v => v.Trim());
+
+                            // 値の中に解釈可能なものがあれば設定ON
+                            foreach (var value in values)
+                            {
+                                switch (value)
+                                {
+                                    case "background":
+                                        // animation定義が未登録であれば追加
+                                        if (!defInfo.Animations.ContainsKey(animId))
+                                        {
+                                            defInfo.Animations.Add(animId, new Seriko.Animation());
+                                        }
+                                        var anim = defInfo.Animations[animId];
+
+                                        // backgroundフラグON
+                                        anim.BackgroundOption = true;
+
+                                        break;
+                                }
+                            }
+
+                            continue;
+                        }
+                    }
+
                 }
 
             }
